@@ -2,11 +2,13 @@ import { current, produce } from 'immer';
 import isEqual from 'lodash/isEqual';
 
 import {
+  ACTION_SET_AVAILABLE_CONTENT_TYPES,
   ACTION_SET_WORKFLOWS,
   ACTION_DELETE_STAGE,
   ACTION_ADD_STAGE,
   ACTION_UPDATE_STAGE,
   ACTION_UPDATE_STAGE_POSITION,
+  ACTION_UPDATE_WORKFLOW,
   STAGE_COLOR_DEFAULT,
 } from '../constants';
 
@@ -17,7 +19,19 @@ export const initialState = {
     workflows: [],
   },
   clientState: {
-    currentWorkflow: { data: null, isDirty: false, hasDeletedServerStages: false },
+    availableContentTypes: [],
+    currentWorkflow: {
+      data: {
+        stages: [
+          {
+            color: STAGE_COLOR_DEFAULT,
+            name: '',
+          },
+        ],
+      },
+      isDirty: false,
+      hasDeletedServerStages: false,
+    },
   },
 };
 
@@ -26,6 +40,13 @@ export function reducer(state = initialState, action) {
     const { payload } = action;
 
     switch (action.type) {
+      case ACTION_SET_AVAILABLE_CONTENT_TYPES: {
+        const { collectionTypes, singleTypes } = payload;
+
+        draft.clientState.availableContentTypes = [...collectionTypes, ...singleTypes];
+        break;
+      }
+
       case ACTION_SET_WORKFLOWS: {
         const { status, workflows } = payload;
 
@@ -45,10 +66,14 @@ export function reducer(state = initialState, action) {
           };
 
           draft.serverState.workflows = workflows;
-          draft.serverState.currentWorkflow = defaultWorkflow;
           draft.clientState.currentWorkflow.data = defaultWorkflow;
-          draft.clientState.currentWorkflow.hasDeletedServerStages = false;
+          // if no workflow was passed, reset to the initial state, e.g. when switching
+          // between edit and create view
+        } else {
+          draft.clientState.currentWorkflow.data = initialState.clientState.currentWorkflow.data;
         }
+
+        draft.clientState.currentWorkflow.hasDeletedServerStages = false;
         break;
       }
 
@@ -121,6 +146,15 @@ export function reducer(state = initialState, action) {
 
           draft.clientState.currentWorkflow.data.stages = newStages;
         }
+
+        break;
+      }
+
+      case ACTION_UPDATE_WORKFLOW: {
+        draft.clientState.currentWorkflow.data = {
+          ...draft.clientState.currentWorkflow.data,
+          ...payload,
+        };
 
         break;
       }

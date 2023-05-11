@@ -1,9 +1,11 @@
 import {
+  ACTION_SET_AVAILABLE_CONTENT_TYPES,
   ACTION_SET_WORKFLOWS,
   ACTION_DELETE_STAGE,
   ACTION_ADD_STAGE,
   ACTION_UPDATE_STAGE,
   ACTION_UPDATE_STAGE_POSITION,
+  ACTION_UPDATE_WORKFLOW,
 } from '../constants';
 
 export function setWorkflows({ status, data }) {
@@ -49,5 +51,22 @@ export function updateStagePosition(oldIndex, newIndex) {
       newIndex,
       oldIndex,
     },
+  };
+}
+
+export function setAvailableContentTypes({ collectionTypes, singleTypes }) {
+  return {
+    type: ACTION_SET_AVAILABLE_CONTENT_TYPES,
+    payload: {
+      collectionTypes,
+      singleTypes,
+    },
+  };
+}
+
+export function updateWorkflow(payload) {
+  return {
+    type: ACTION_UPDATE_WORKFLOW,
+    payload,
   };
 }
