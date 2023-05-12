@@ -110,6 +110,9 @@ const verify = async (auth, config) => {
   )(config.scope);
 
   if (!isAllowed) {
+    if (!user){
+      throw new UnauthorizedError();
+    }
     throw new ForbiddenError();
   }
 };
